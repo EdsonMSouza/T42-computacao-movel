@@ -6,7 +6,7 @@ void main() {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     title: 'Lista de tarefas',
-    //home: Home(),
+    home: Home(),
     themeMode: ThemeMode.system, // tema atual do smartphone
     theme: lightTheme(),
     darkTheme: darkTheme(),

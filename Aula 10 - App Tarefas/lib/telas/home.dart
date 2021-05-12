@@ -77,7 +77,69 @@ class _HomeState extends State<Home> {
     });
   }
 
-  Widget widgetTarefa(BuildContext context, int index) {}
+  Widget widgetTarefa(BuildContext context, int index) {
+    return Dismissible(
+      key: Key(DateTime.now().microsecondsSinceEpoch.toString()),
+      background: Container(
+        color: Colors.red, // cor do fundo quando apagar a mensagem
+        child: Align(
+          alignment: Alignment(0.85, 0.0),
+          child: Icon(
+            Icons.delete_sweep_outlined,
+            color: Colors.white,
+          ),
+        ),
+      ),
+      // definindo a direção do objeto para apagar
+      direction: DismissDirection.endToStart,
+      child: CheckboxListTile(
+        title: Text(_toDoList[index]["titulo"]),
+        value: _toDoList[index]["realizado"],
+        secondary: CircleAvatar(
+          child: Icon(
+            _toDoList[index]["realizado"] ? Icons.check : Icons.error,
+            color: Theme.of(context).iconTheme.color,
+          ),
+          backgroundColor: Theme.of(context).primaryColor,
+        ),
+        onChanged: (value) {
+          setState(() {
+            _toDoList[index]["realizado"] = value;
+            _salvarDados();
+          });
+        },
+        checkColor: Theme.of(context).primaryColor,
+        activeColor: Theme.of(context).secondaryHeaderColor,
+      ), // até aqui controlamos o estado da lista
+      // fazendo uma exclusão dentro de um determinado tempo
+      onDismissed: (direction) {
+        setState(() {
+          // guarda o valor do item da lista
+          _lastRemoved = Map.from(_toDoList[index]);
+          // guarda o índice da entrada
+          _indexLastRemoved = index;
+          _toDoList.removeAt(index);
+          _salvarDados();
+        });
+        // ação de desfazer
+        final snack = SnackBar(
+          content: Text("Tarefa \"${_lastRemoved["titulo"]}\" apagada!"),
+          action: SnackBarAction(
+              label: "Desfazer",
+              onPressed: () {
+                setState(() {
+                  _toDoList.insert(_indexLastRemoved, _lastRemoved);
+                  _salvarDados();
+                });
+              }),
+          duration: Duration(seconds: 5),
+        );
+        // configurar: mostrar/esconder o desfazer
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(snack);
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
